@@ -1,51 +1,21 @@
 const router = require("express").Router();
 const Produto = require("../models/Products");
 
-// Create a new product
-router.post("/create/", async (req, res) => {
-  const { name, description, category, brand, model, price, stock, active } =
-    req.body;
-
-  if (!name || !price) {
-    return res.status(400).json({ error: "Nome e preço são obrigatórios!" });
-  }
-
-  const produto = new Produto({
-    name,
-    description,
-    category,
-    brand,
-    model,
-    price,
-    stock,
-    active,
-  });
-
-  try {
-    await produto.save();
-    res.status(201).json({ message: "Produto cadastrado com sucesso!" });
-  } catch (err) {
-    console.error("Erro ao criar produto:", err);
-    res.status(500).json({
-      error: "Erro ao cadastrar produto. Verifique os dados e tente novamente.",
-    });
-  }
-});
-
-// Get all products
+// Test the API
 router.get("/", async (req, res) => {
-  return res.status(200).json("Olá");
+  return res.status(200).json("The API is working");
 });
 
 // Get all products
-router.get("/getAll/", async (req, res) => {
+router.get("/getAll", async (req, res) => {
   try {
     const produtos = await Produto.find();
     res.status(200).json(produtos);
   } catch (err) {
-    console.error("Erro ao buscar produtos:", err);
+    console.error("Error to find products:", err);
     res.status(500).json({
-      error: "Erro ao buscar produtos. Tente novamente mais tarde.",
+      success: false,
+      error: "Error to find products, the upstream server returned 500.",
     });
   }
 });
@@ -56,30 +26,100 @@ router.get("/getById/:id", async (req, res) => {
   try {
     const produto = await Produto.findById(id);
     if (!produto) {
-      return res.status(404).json({ error: "Produto não encontrado!" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Product not found." });
     }
     res.status(200).json(produto);
   } catch (err) {
-    console.error("Erro ao buscar produto:", err);
+    console.error("Error to find product:", err);
     res.status(500).json({
-      error: "Erro ao buscar produto. Tente novamente mais tarde.",
+      success: false,
+      error: "Error to find product, verify the data.",
     });
   }
 });
 
-// Update a product by ID (PUT)
+// Create a new product
+router.post("/create", async (req, res) => {
+  const {
+    name,
+    description,
+    color,
+    weight,
+    category,
+    brand,
+    model,
+    price,
+    stock,
+    active,
+  } = req.body;
+
+  const created_at = new Date();
+
+  if (!name || !price || !description || !stock || !active) {
+    return res.status(400).json({
+      success: false,
+      error: "Name, price, description, stock and active are required",
+    });
+  }
+
+  const produto = new Produto({
+    name,
+    description,
+    color,
+    weight,
+    category,
+    brand,
+    model,
+    price,
+    stock,
+    created_at,
+    active,
+  });
+
+  try {
+    await produto.save();
+    res
+      .status(201)
+      .json({ success: true, message: "Product created.", produto });
+  } catch (err) {
+    console.error("Error to create product:", err);
+    res.status(500).json({
+      success: false,
+      error: "Error to create product, verify the data.",
+    });
+  }
+});
+
+// Update a product by ID
 router.put("/update/:id", async (req, res) => {
   const { id } = req.params;
-  const { name, description, category, brand, model, price, stock, active } =
-    req.body;
+  const {
+    name,
+    description,
+    color,
+    weight,
+    category,
+    brand,
+    model,
+    price,
+    stock,
+    active,
+  } = req.body;
 
-  if (!name || !price) {
-    return res.status(400).json({ error: "Nome e preço são obrigatórios!" });
+  if (!name || !price || !description || !stock || !active) {
+    return res.status(400).json({
+      success: false,
+      error: "Name, price, description, stock and active are required",
+    });
   }
 
   const produto = {
     name,
     description,
+    color,
+    weight,
     category,
     brand,
     model,
@@ -89,21 +129,24 @@ router.put("/update/:id", async (req, res) => {
   };
 
   try {
-    const updatedProduto = await Produto.findByIdAndUpdate(id, produto, {
+    const updatedProduct = await Produto.findByIdAndUpdate(id, produto, {
       new: true,
     });
 
-    if (!updatedProduto) {
-      return res.status(404).json({ error: "Produto não encontrado!" });
+    if (!updatedProduct) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Product not found." });
     }
 
     res
       .status(200)
-      .json({ message: "Produto atualizado com sucesso!", updatedProduto });
+      .json({ success: true, message: "Product updated.", updatedProduct });
   } catch (err) {
-    console.error("Erro ao atualizar produto:", err);
+    console.error("Error to update product:", err);
     res.status(500).json({
-      error: "Erro ao atualizar produto. Verifique os dados e tente novamente.",
+      success: false,
+      error: "Error to update product, verify the data.",
     });
   }
 });
@@ -113,17 +156,22 @@ router.delete("/delete/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedProduto = await Produto.findByIdAndDelete(id);
+    const deletedProduct = await Produto.findByIdAndDelete(id);
 
-    if (!deletedProduto) {
-      return res.status(404).json({ error: "Produto não encontrado!" });
+    if (!deletedProduct) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Product not found." });
     }
 
-    res.status(200).json({ message: "Produto deletado com sucesso!" });
+    res
+      .status(200)
+      .json({ success: true, message: "Product deleted.", deletedProduct });
   } catch (err) {
-    console.error("Erro ao deletar produto:", err);
+    console.error("Error to delete product:", err);
     res.status(500).json({
-      error: "Erro ao deletar produto. Tente novamente mais tarde.",
+      success: false,
+      error: "Error to delete product, verify the data.",
     });
   }
 });
