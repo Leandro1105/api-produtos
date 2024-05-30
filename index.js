@@ -14,7 +14,7 @@ server.use(
 
 server.use(express.json());
 
-server.use("/produto", productRoutes);
+server.use("/product", productRoutes);
 
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = encodeURIComponent(process.env.DB_PASSWORD);
@@ -26,12 +26,12 @@ const DB_URL = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@${DB_CLUSTER}/?${DB_PARA
 mongoose
   .connect(DB_URL)
   .then(() => {
-    console.log("Conectado ao MONGO DB!");
+    console.log("Connected to MONGO DB!");
   })
   .catch((err) => {
-    console.error("Erro ao conectar ao MongoDB", err);
+    console.error("Error to connect", err);
   });
 
 server.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+  console.log("Server listening on port 3000");
 });
