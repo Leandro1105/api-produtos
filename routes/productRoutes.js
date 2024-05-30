@@ -33,6 +33,11 @@ router.post("/create/", async (req, res) => {
 });
 
 // Get all products
+router.get("/", async (req, res) => {
+  return res.status(200).json("Olá");
+});
+
+// Get all products
 router.get("/getAll/", async (req, res) => {
   try {
     const produtos = await Produto.find();

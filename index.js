@@ -14,7 +14,7 @@ server.use(
 
 server.use(express.json());
 
-server.use("/product", productRoutes);
+server.use("/", productRoutes);
 
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = encodeURIComponent(process.env.DB_PASSWORD);
